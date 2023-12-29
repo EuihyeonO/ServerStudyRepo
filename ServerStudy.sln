@@ -9,6 +9,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Theory", "Theory\Theory.vcxproj", "{086F0E81-5C09-4E43-A126-9C4F5760D1BF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "간단 채팅서버 (콘솔)", "간단 채팅서버 (콘솔)", "{DBEB5A9E-1E56-43D7-889E-CBCAE5894F33}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "이론 공부", "이론 공부", "{E1134F91-AA89-48E1-A301-4DDABA7599FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IMGUI 채팅서버", "IMGUI 채팅서버", "{FB267EC0-FDB5-4DDC-9CFF-47DA58610839}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -44,6 +50,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8C8F3755-018A-40FB-9DE5-8705958A1937} = {DBEB5A9E-1E56-43D7-889E-CBCAE5894F33}
+		{A1ADF8AD-89C0-452B-AB17-E1566B6479EB} = {DBEB5A9E-1E56-43D7-889E-CBCAE5894F33}
+		{086F0E81-5C09-4E43-A126-9C4F5760D1BF} = {E1134F91-AA89-48E1-A301-4DDABA7599FC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {73F4227A-54AB-4752-998D-4A2F9546EFAC}
