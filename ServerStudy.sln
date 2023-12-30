@@ -9,11 +9,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Theory", "Theory\Theory.vcxproj", "{086F0E81-5C09-4E43-A126-9C4F5760D1BF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "간단 채팅서버 (콘솔)", "간단 채팅서버 (콘솔)", "{DBEB5A9E-1E56-43D7-889E-CBCAE5894F33}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "이론 공부", "이론 공부", "{E1134F91-AA89-48E1-A301-4DDABA7599FC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IMGUI 채팅서버", "IMGUI 채팅서버", "{FB267EC0-FDB5-4DDC-9CFF-47DA58610839}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "채팅 서버", "채팅 서버", "{DBEB5A9E-1E56-43D7-889E-CBCAE5894F33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
