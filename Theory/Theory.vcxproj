@@ -132,7 +132,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="TCP_IP 5계층.txt" />
-    <Text Include="OSI 7계층.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
