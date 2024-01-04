@@ -9,8 +9,5 @@
     <Text Include="TCP_IP 5계층.txt">
       <Filter>네트워크 모델</Filter>
     </Text>
-    <Text Include="OSI 7계층.txt">
-      <Filter>네트워크 모델</Filter>
-    </Text>
   </ItemGroup>
 </Project>
