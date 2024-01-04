@@ -1,6 +1,4 @@
 
-ISO (국제 표준화 기구) 에서 제안한 네트워크 모델.
-
 
     물리 계충 (Physical Layer)
 	   ↓ 		 
@@ -10,11 +8,11 @@ ISO (국제 표준화 기구) 에서 제안한 네트워크 모델.
        ↓
     전송 계층 (Transport Layer)
        ↓
-    세션 계층 (Session Layer)
+   // 세션 계층 (Session Layer)         
        ↓
-    표현 계층 (Presentation Layer)
+   // 표현 계층 (Presentation Layer)     
        ↓
-    응용 계층 (Application Layer)
+    응용 계층 (Application Layer)     
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 
