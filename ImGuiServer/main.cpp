@@ -66,14 +66,41 @@ void RecvData(SOCKET _Socket, int Num)
         if (RecvReturn == -1)
         {
             Clients[Num].first.bIsDeath = true;
-
             RecvChats.push_back(Clients[Num].second + " leave. \n");
+
+            for (int i = 0; i < Clients.size(); i++)
+            {
+                if (i == Num || Clients[i].first.bIsDeath == true)
+                {
+                    continue;
+                }
+
+                std::string SendMsg = Clients[Num].second;
+                SendMsg += " Leave.";
+
+                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
+            }
+
             break;
         }
 
         if (Buffer[0] != 0)
         {
-            RecvChats.push_back(Clients[Num].second + " :" + Buffer + "\n");
+            RecvChats.push_back(Clients[Num].second + " : " + Buffer + "\n");
+
+            for (int i = 0; i < Clients.size(); i++)
+            {
+                if (i == Num || Clients[i].first.bIsDeath == true)
+                {
+                    continue;
+                }
+
+                std::string SendMsg = Clients[Num].second;
+                SendMsg += " : ";
+                SendMsg += Buffer;
+
+                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
+            }
         }
     }
 }

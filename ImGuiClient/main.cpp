@@ -46,9 +46,9 @@ void CleanupRenderTarget();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-std::vector<std::string> RecvChats;
+std::vector<std::string> Chats;
 
-void RecvData(SOCKET& _Socket)
+void RecvData(SOCKET _Socket)
 {
     char Buffer[PACKET_SIZE];
 
@@ -57,14 +57,9 @@ void RecvData(SOCKET& _Socket)
         ZeroMemory(Buffer, sizeof(Buffer));
         int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
 
-        if (RecvReturn == -1)
-        {
-            break;
-        }
-
         if (Buffer[0] != 0)
         {
-            RecvChats.push_back(Buffer);
+            Chats.push_back(Buffer);
         }
     }
 }
@@ -123,7 +118,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     bool isSetName = false;
     bool isSetIP = false;
 
-    std::vector<std::string> Chats;
 
     SOCKET Server;
 
@@ -192,7 +186,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                
                 while(connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
 
-                std::thread(RecvData, std::ref(Server)).detach();
+                std::thread(RecvData, Server).detach();
 
                 send(Server, Name, sizeof(Name), 0);
 
@@ -201,14 +195,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
         else
         {
-            char A[1024] = { 0, };
+            char ChatText[1024] = { 0, };
 
             ImGui::Text("Chat Start");
 
-            if (ImGui::InputText(" ", A, IM_ARRAYSIZE(A), ImGuiInputTextFlags_EnterReturnsTrue) == true)
+            if (ImGui::InputText(" ", ChatText, IM_ARRAYSIZE(ChatText), ImGuiInputTextFlags_EnterReturnsTrue) == true)
             {
-                Chats.push_back(A);
-                send(Server, A, sizeof(Name), 0);
+                std::string ChatStr = Name;
+                ChatStr += " : ";
+                ChatStr += ChatText;
+
+                Chats.push_back(ChatStr);
+
+                send(Server, ChatText, sizeof(ChatText), 0);
 
                 if (Chats.size() > 20)
                 {

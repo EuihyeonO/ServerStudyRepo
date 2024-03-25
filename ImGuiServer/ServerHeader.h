@@ -23,7 +23,7 @@ public:
 	int ClientSize = sizeof(Addr);
 	int Number = -1;
 
-	INT32 bIsDeath : 1;
+	bool bIsDeath = false;
 
 	Client()
 	{
