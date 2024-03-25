@@ -192,6 +192,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 while(connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
                 std::thread(RecvData, std::ref(Server)).detach();
 
+                send(Server, Name, sizeof(Name), 0);
+
                 isSetIP = true;
             }
         }

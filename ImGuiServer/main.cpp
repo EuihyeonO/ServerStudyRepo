@@ -10,6 +10,8 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 
+#include "ServerHeader.h"
+
 #include <d3d11.h>
 #include <tchar.h>
 
@@ -24,7 +26,7 @@
 
 #define MAX_LOADSTRING 100
 #define PACKET_SIZE 1024
-#define PORT 8050
+#define PORT 8080
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -48,9 +50,11 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 std::vector<std::string> RecvChats;
 
-void RecvData(SOCKET& _Socket)
+void RecvData(SOCKET _Socket, int Num)
 {
-    char Buffer[PACKET_SIZE];
+    char Buffer[PACKET_SIZE] = { 0, };
+    recv(_Socket, Buffer, sizeof(Buffer), 0);
+    Clients[Num].second = Buffer;
 
     while (true)
     {
@@ -59,13 +63,34 @@ void RecvData(SOCKET& _Socket)
 
         if (RecvReturn == -1)
         {
+            Clients[Num].first.bIsDeath = true;
+
+            RecvChats.push_back(Clients[Num].second + "님이 떠났습니다. \n");
             break;
         }
 
         if (Buffer[0] != 0)
         {
-            RecvChats.push_back(Buffer);
+            RecvChats.push_back(Clients[Num].second + " :" + Buffer + "\n");
         }
+    }
+}
+
+void Accept(SOCKET& _Socket)
+{
+    int Cnt = 0;
+
+    while (true)
+    {
+        Clients.push_back(std::pair<Client, std::string>{Client(), ""});
+        Clients[Cnt].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[Cnt].first.Addr), &Clients[Cnt].first.ClientSize);
+        Clients[Cnt].first.Number = Cnt;
+        Clients[Cnt].first.bIsDeath = false;
+
+        std::thread(RecvData, Clients[Cnt].first.ClientSock, Cnt).detach();
+
+        RecvChats.push_back(Clients[Cnt].second + "님이 접속했습니다.");
+        Cnt++;
     }
 }
 
@@ -117,15 +142,45 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     //서버
-    char IP[1024] = { 0, };
-    char Name[1024] = { 0, };
+       //서버
+    WSADATA Wsa;
 
-    bool isSetName = false;
-    bool isSetIP = false;
+    //윈속 라이브러리 초기화, 데이터를 두 번째 인자에 대입.
+    int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
 
-    std::vector<std::string> Chats;
+    if (WsaStartResult != 0)
+    {
+        std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
+        return 1; // 프로그램 종료 또는 오류 처리
+    }
 
-    SOCKET Server;
+    SOCKET Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    SOCKADDR_IN Addr = { 0, };
+
+    Addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    Addr.sin_port = PORT;
+    Addr.sin_family = AF_INET;
+
+    int BindResult = bind(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr));
+
+    if (BindResult != 0)
+    {
+        std::cerr << "bind failed with error code: " << BindResult << std::endl;
+        return 1; // 프로그램 종료 또는 오류 처리
+    }
+
+    int ListenResult = listen(Server, SOMAXCONN);
+
+    if (ListenResult != 0) {
+        std::cerr << "listen failed with error code: " << ListenResult << std::endl;
+        return 1; // 프로그램 종료 또는 오류 처리
+    }
+
+    std::thread(Accept, std::ref(Server)).detach();
+
+    char Name[PACKET_SIZE] = { 0, };
+    char Message[PACKET_SIZE] = { 0, };
 
     // Main loop
     bool done = false;
@@ -159,59 +214,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         ImGui::NewFrame();
 
-        ImGui::Begin("Client");
+        ImGui::Begin("Server");
 
-        if (isSetName == false)
+        char A[1024] = { 0, };
+
+        ImGui::Text("Log");
+
+        for (int i = 0; i < RecvChats.size(); i++)
         {
-            ImGui::Text("Please Input Name");
-            if (ImGui::InputText(" ", Name, IM_ARRAYSIZE(Name), ImGuiInputTextFlags_EnterReturnsTrue) == true)
-            {
-                isSetName = true;
-            }
+            ImGui::Text(RecvChats[i].c_str());
         }
-        else if (isSetName == true && isSetIP == false)
+
+        if (Clients.size() > 0)
         {
-            ImGui::Text("Please Input IP");
-            if (ImGui::InputText(" ", IP, IM_ARRAYSIZE(IP), ImGuiInputTextFlags_EnterReturnsTrue) == true)
-            {
-                WSADATA Wsa;
-                
-                int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
-                if (WsaStartResult != 0)
-                {
-                    std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
-                    return 1;
-                }
-                
-                Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-                SOCKADDR_IN Addr = { 0, };
-                
-                Addr.sin_addr.s_addr = inet_addr(IP);
-                Addr.sin_port = PORT;
-                Addr.sin_family = AF_INET;
-                
-                while (connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
-                std::thread(RecvData, std::ref(Server)).detach();
-
-                isSetIP = true;
-            }
-        }
-        else
-        {
-            char A[1024] = { 0, };
-
-            ImGui::Text("Chat Start");
-
-            if (ImGui::InputText(" ", A, IM_ARRAYSIZE(A), ImGuiInputTextFlags_EnterReturnsTrue) == true)
-            {
-                Chats.push_back(A);
-                send(Server, A, sizeof(Name), 0);
-            }
-
-            for (int i = 0; i < Chats.size(); i++)
-            {
-                ImGui::Text(Chats[i].c_str());
-            }
+            int a = 0;
         }
 
         ImGui::End();

@@ -153,6 +153,7 @@
     <ClInclude Include="ImGuiServer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="ServerHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Library\debug\imgui\imgui.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="..\Library\debug\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Library\debug\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Library\debug\imgui\imgui.natstepfilter" />
