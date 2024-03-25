@@ -1,8 +1,10 @@
 ﻿// WindowsProject1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
-//
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#pragma comment(lib, "ws2_32.lib")
 
 #include "framework.h"
-#include "WindowsProject1.h"
+#include "resource.h"
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -11,9 +13,18 @@
 #include <d3d11.h>
 #include <tchar.h>
 
+#include <vector>
+#include <string>
+#include <iostream>
+#include <thread>
+
+#include <WinSock2.h>
+
 #pragma comment(lib, "d3d11.lib")
 
 #define MAX_LOADSTRING 100
+#define PACKET_SIZE 1024
+#define PORT 8050
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -35,10 +46,33 @@ void CleanupRenderTarget();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+std::vector<std::string> RecvChats;
+
+void RecvData(SOCKET& _Socket)
+{
+    char Buffer[PACKET_SIZE];
+
+    while (true)
+    {
+        ZeroMemory(Buffer, sizeof(Buffer));
+        int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
+
+        if (RecvReturn == -1)
+        {
+            break;
+        }
+
+        if (Buffer[0] != 0)
+        {
+            RecvChats.push_back(Buffer);
+        }
+    }
+}
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -47,8 +81,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WINDOWSPROJECT1, szWindowClass, MAX_LOADSTRING);
-    
+    LoadStringW(hInstance, IDC_IMGUISERVER, szWindowClass, MAX_LOADSTRING);
+
     //IMGUI
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
@@ -70,7 +104,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
     ImGui::StyleColorsDark();
@@ -81,6 +115,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    //서버
+    char IP[1024] = { 0, };
+    char Name[1024] = { 0, };
+
+    bool isSetName = false;
+    bool isSetIP = false;
+
+    std::vector<std::string> Chats;
+
+    SOCKET Server;
 
     // Main loop
     bool done = false;
@@ -114,11 +159,63 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         ImGui::NewFrame();
 
+        ImGui::Begin("Client");
+
+        if (isSetName == false)
         {
-            ImGui::Begin("Client");
-            
-            ImGui::End();
+            ImGui::Text("Please Input Name");
+            if (ImGui::InputText(" ", Name, IM_ARRAYSIZE(Name), ImGuiInputTextFlags_EnterReturnsTrue) == true)
+            {
+                isSetName = true;
+            }
         }
+        else if (isSetName == true && isSetIP == false)
+        {
+            ImGui::Text("Please Input IP");
+            if (ImGui::InputText(" ", IP, IM_ARRAYSIZE(IP), ImGuiInputTextFlags_EnterReturnsTrue) == true)
+            {
+                WSADATA Wsa;
+                
+                int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
+                if (WsaStartResult != 0)
+                {
+                    std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
+                    return 1;
+                }
+                
+                Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+                SOCKADDR_IN Addr = { 0, };
+                
+                Addr.sin_addr.s_addr = inet_addr(IP);
+                Addr.sin_port = PORT;
+                Addr.sin_family = AF_INET;
+                
+                while (connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
+                std::thread(RecvData, std::ref(Server)).detach();
+
+                isSetIP = true;
+            }
+        }
+        else
+        {
+            char A[1024] = { 0, };
+
+            ImGui::Text("Chat Start");
+
+            if (ImGui::InputText(" ", A, IM_ARRAYSIZE(A), ImGuiInputTextFlags_EnterReturnsTrue) == true)
+            {
+                Chats.push_back(A);
+                send(Server, A, sizeof(Name), 0);
+            }
+
+            for (int i = 0; i < Chats.size(); i++)
+            {
+                ImGui::Text(Chats[i].c_str());
+            }
+        }
+
+        ImGui::End();
+
 
         // Rendering
         ImGui::Render();

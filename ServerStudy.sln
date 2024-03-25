@@ -5,7 +5,9 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "채팅 서버", "채팅 서버", "{DBEB5A9E-1E56-43D7-889E-CBCAE5894F33}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "WindowsProject1\WindowsProject1.vcxproj", "{0E055E89-37D7-4141-9A77-3677B42D19AD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "ImGuiServer\ImGuiServer.vcxproj", "{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "ImGuiClient\WindowsProject1.vcxproj", "{0E055E89-37D7-4141-9A77-3677B42D19AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,14 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Debug|x64.ActiveCfg = Debug|x64
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Debug|x64.Build.0 = Debug|x64
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Debug|x86.ActiveCfg = Debug|Win32
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Debug|x86.Build.0 = Debug|Win32
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Release|x64.ActiveCfg = Release|x64
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Release|x64.Build.0 = Release|x64
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Release|x86.ActiveCfg = Release|Win32
+		{7C8B4280-9426-41AE-BCAC-B20624FCFEC1}.Release|x86.Build.0 = Release|Win32
 		{0E055E89-37D7-4141-9A77-3677B42D19AD}.Debug|x64.ActiveCfg = Debug|x64
 		{0E055E89-37D7-4141-9A77-3677B42D19AD}.Debug|x64.Build.0 = Debug|x64
 		{0E055E89-37D7-4141-9A77-3677B42D19AD}.Debug|x86.ActiveCfg = Debug|Win32
