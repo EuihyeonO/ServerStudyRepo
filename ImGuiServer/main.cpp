@@ -226,6 +226,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             ImGui::Text(RecvChats[i].c_str());
         }
 
+        if (RecvChats.size() > 20)
+        {
+            RecvChats.erase(RecvChats.begin());
+        }
+
         ImGui::End();
 
         // Rendering

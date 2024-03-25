@@ -190,7 +190,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 Addr.sin_port = PORT;
                 Addr.sin_family = AF_INET;
                
-                int a = connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr));
+                while(connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
 
                 std::thread(RecvData, std::ref(Server)).detach();
 
@@ -209,6 +209,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             {
                 Chats.push_back(A);
                 send(Server, A, sizeof(Name), 0);
+
+                if (Chats.size() > 20)
+                {
+                    Chats.erase(Chats.begin());
+                }
             }
 
             for (int i = 0; i < Chats.size(); i++)
