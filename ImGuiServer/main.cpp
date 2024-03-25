@@ -56,6 +56,8 @@ void RecvData(SOCKET _Socket, int Num)
     recv(_Socket, Buffer, sizeof(Buffer), 0);
     Clients[Num].second = Buffer;
 
+    RecvChats.push_back(Clients[Num].second + " join.");
+
     while (true)
     {
         ZeroMemory(Buffer, sizeof(Buffer));
@@ -65,7 +67,7 @@ void RecvData(SOCKET _Socket, int Num)
         {
             Clients[Num].first.bIsDeath = true;
 
-            RecvChats.push_back(Clients[Num].second + "님이 떠났습니다. \n");
+            RecvChats.push_back(Clients[Num].second + " leave. \n");
             break;
         }
 
@@ -89,7 +91,6 @@ void Accept(SOCKET& _Socket)
 
         std::thread(RecvData, Clients[Cnt].first.ClientSock, Cnt).detach();
 
-        RecvChats.push_back(Clients[Cnt].second + "님이 접속했습니다.");
         Cnt++;
     }
 }
@@ -112,7 +113,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
 
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 300, 400, nullptr, nullptr, wc.hInstance, nullptr);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -225,13 +226,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             ImGui::Text(RecvChats[i].c_str());
         }
 
-        if (Clients.size() > 0)
-        {
-            int a = 0;
-        }
-
         ImGui::End();
-
 
         // Rendering
         ImGui::Render();

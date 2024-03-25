@@ -24,7 +24,7 @@
 
 #define MAX_LOADSTRING 100
 #define PACKET_SIZE 1024
-#define PORT 8050
+#define PORT 8080
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -87,7 +87,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
 
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 300, 400, nullptr, nullptr, wc.hInstance, nullptr);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -172,6 +172,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         else if (isSetName == true && isSetIP == false)
         {
             ImGui::Text("Please Input IP");
+
             if (ImGui::InputText(" ", IP, IM_ARRAYSIZE(IP), ImGuiInputTextFlags_EnterReturnsTrue) == true)
             {
                 WSADATA Wsa;
@@ -189,7 +190,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 Addr.sin_port = PORT;
                 Addr.sin_family = AF_INET;
                
-                while(connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
+                int a = connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr));
+
                 std::thread(RecvData, std::ref(Server)).detach();
 
                 send(Server, Name, sizeof(Name), 0);
