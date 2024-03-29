@@ -31,4 +31,19 @@ public:
 	}
 };
 
+bool CreateDeviceD3D(HWND hWnd);
+void CleanupDeviceD3D();
+void CreateRenderTarget();
+void CleanupRenderTarget();
+
+void PrintLog();
+
+int WindowInit(HINSTANCE& _hInstance);
+int ServerInit();
+
+void RecvData(SOCKET _Socket, int Num);
+void Accept(SOCKET& _Socket);
+
+void SendMsgAllClient(int _ExceptNum, const std::string& _Msg);
+
 std::vector<std::pair<Client, std::string>> Clients;

@@ -28,99 +28,26 @@
 #define PACKET_SIZE 1024
 #define PORT 8080
 
-// 전역 변수:
-HINSTANCE hInst;                                // 현재 인스턴스입니다.
-WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
-WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
 static IDXGISwapChain* g_pSwapChain = nullptr;
 static UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 static ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
-bool CreateDeviceD3D(HWND hWnd);
-void CleanupDeviceD3D();
-void CreateRenderTarget();
-void CleanupRenderTarget();
+// 전역 변수:
+HINSTANCE hInst;                                
+WCHAR szTitle[MAX_LOADSTRING];                 
+WCHAR szWindowClass[MAX_LOADSTRING];            
 
-// 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
+WNDCLASSEXW wc;
+HWND hwnd;
+ImVec4 clear_color;
+
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+SOCKET Server;
 std::vector<std::string> RecvChats;
-
-void RecvData(SOCKET _Socket, int Num)
-{
-    char Buffer[PACKET_SIZE] = { 0, };
-    recv(_Socket, Buffer, sizeof(Buffer), 0);
-    Clients[Num].second = Buffer;
-
-    RecvChats.push_back(Clients[Num].second + " join.");
-
-    while (true)
-    {
-        ZeroMemory(Buffer, sizeof(Buffer));
-        int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
-
-        if (RecvReturn == -1)
-        {
-            Clients[Num].first.bIsDeath = true;
-            RecvChats.push_back(Clients[Num].second + " leave. \n");
-
-            for (int i = 0; i < Clients.size(); i++)
-            {
-                if (i == Num || Clients[i].first.bIsDeath == true)
-                {
-                    continue;
-                }
-
-                std::string SendMsg = Clients[Num].second;
-                SendMsg += " Leave.";
-
-                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
-            }
-
-            break;
-        }
-
-        if (Buffer[0] != 0)
-        {
-            RecvChats.push_back(Clients[Num].second + " : " + Buffer + "\n");
-
-            for (int i = 0; i < Clients.size(); i++)
-            {
-                if (i == Num || Clients[i].first.bIsDeath == true)
-                {
-                    continue;
-                }
-
-                std::string SendMsg = Clients[Num].second;
-                SendMsg += " : ";
-                SendMsg += Buffer;
-
-                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
-            }
-        }
-    }
-}
-
-void Accept(SOCKET& _Socket)
-{
-    int Cnt = 0;
-
-    while (true)
-    {
-        Clients.push_back(std::pair<Client, std::string>{Client(), ""});
-        Clients[Cnt].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[Cnt].first.Addr), &Clients[Cnt].first.ClientSize);
-        Clients[Cnt].first.Number = Cnt;
-        Clients[Cnt].first.bIsDeath = false;
-
-        std::thread(RecvData, Clients[Cnt].first.ClientSock, Cnt).detach();
-
-        Cnt++;
-    }
-}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -130,82 +57,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: 여기에 코드를 입력합니다.
-
-    // 전역 문자열을 초기화합니다.
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_IMGUISERVER, szWindowClass, MAX_LOADSTRING);
-
-    //IMGUI
-    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
-    ::RegisterClassExW(&wc);
-
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 300, 400, nullptr, nullptr, wc.hInstance, nullptr);
-
-    // Initialize Direct3D
-    if (!CreateDeviceD3D(hwnd))
+    if (WindowInit(hInstance) == 1)
     {
-        CleanupDeviceD3D();
-        ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
         return 1;
     }
 
-    // Show the window
-    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(hwnd);
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplWin32_Init(hwnd);
-    ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    //서버
-       //서버
-    WSADATA Wsa;
-
-    //윈속 라이브러리 초기화, 데이터를 두 번째 인자에 대입.
-    int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
-
-    if (WsaStartResult != 0)
+    if (ServerInit() == 1)
     {
-        std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
-        return 1; // 프로그램 종료 또는 오류 처리
+        return 1;
     }
-
-    SOCKET Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-    SOCKADDR_IN Addr = { 0, };
-
-    Addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    Addr.sin_port = PORT;
-    Addr.sin_family = AF_INET;
-
-    int BindResult = bind(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr));
-
-    if (BindResult != 0)
-    {
-        std::cerr << "bind failed with error code: " << BindResult << std::endl;
-        return 1; // 프로그램 종료 또는 오류 처리
-    }
-
-    int ListenResult = listen(Server, SOMAXCONN);
-
-    if (ListenResult != 0) {
-        std::cerr << "listen failed with error code: " << ListenResult << std::endl;
-        return 1; // 프로그램 종료 또는 오류 처리
-    }
-
-    std::thread(Accept, std::ref(Server)).detach();
 
     char Name[PACKET_SIZE] = { 0, };
     char Message[PACKET_SIZE] = { 0, };
@@ -242,23 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         ImGui::NewFrame();
 
-        ImGui::Begin("Server");
-
-        char A[1024] = { 0, };
-
-        ImGui::Text("Log");
-
-        for (int i = 0; i < RecvChats.size(); i++)
-        {
-            ImGui::Text(RecvChats[i].c_str());
-        }
-
-        if (RecvChats.size() > 20)
-        {
-            RecvChats.erase(RecvChats.begin());
-        }
-
-        ImGui::End();
+        PrintLog();
 
         // Rendering
         ImGui::Render();
@@ -267,8 +111,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        g_pSwapChain->Present(1, 0); // Present with vsync
-        //g_pSwapChain->Present(0, 0); // Present without vsync
+        g_pSwapChain->Present(1, 0);
     }
 
     ImGui_ImplDX11_Shutdown();
@@ -281,8 +124,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     return 0;
 }
-
-
 
 bool CreateDeviceD3D(HWND hWnd)
 {
@@ -338,14 +179,8 @@ void CleanupRenderTarget()
     if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = nullptr; }
 }
 
-// Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-// Win32 message handler
-// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
@@ -368,4 +203,194 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+}
+
+int WindowInit(HINSTANCE& _hInstance)
+{
+    // 전역 문자열을 초기화합니다.
+    LoadStringW(_hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(_hInstance, IDC_IMGUISERVER, szWindowClass, MAX_LOADSTRING);
+
+    //IMGUI
+    wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
+    ::RegisterClassExW(&wc);
+
+    hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 300, 400, nullptr, nullptr, wc.hInstance, nullptr);
+
+    // Initialize Direct3D
+    if (!CreateDeviceD3D(hwnd))
+    {
+        CleanupDeviceD3D();
+        ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+        return 1;
+    }
+
+    // Show the window
+    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+    ::UpdateWindow(hwnd);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    return 0;
+}
+
+int ServerInit()
+{
+    //서버
+    WSADATA Wsa;
+
+    //윈속 라이브러리 초기화, 데이터를 두 번째 인자에 대입.
+    int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
+
+    if (WsaStartResult != 0)
+    {
+        std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
+        return 1; // 프로그램 종료 또는 오류 처리
+    }
+
+    Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    SOCKADDR_IN Addr = { 0, };
+
+    Addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    Addr.sin_port = PORT;
+    Addr.sin_family = AF_INET;
+
+    int BindResult = bind(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr));
+
+    if (BindResult != 0)
+    {
+        std::cerr << "bind failed with error code: " << BindResult << std::endl;
+        return 1; // 프로그램 종료 또는 오류 처리
+    }
+
+    int ListenResult = listen(Server, SOMAXCONN);
+
+    if (ListenResult != 0) {
+        std::cerr << "listen failed with error code: " << ListenResult << std::endl;
+        return 1; // 프로그램 종료 또는 오류 처리
+    }
+
+    std::thread(Accept, std::ref(Server)).detach();
+
+    return 0;
+}
+
+void Accept(SOCKET& _Socket)
+{
+    int Cnt = 0;
+
+    while (true)
+    {
+        Clients.push_back(std::pair<Client, std::string>{Client(), ""});
+        Clients[Cnt].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[Cnt].first.Addr), &Clients[Cnt].first.ClientSize);
+        Clients[Cnt].first.Number = Cnt;
+        Clients[Cnt].first.bIsDeath = false;
+
+        std::thread(RecvData, Clients[Cnt].first.ClientSock, Cnt).detach();
+
+        Cnt++;
+    }
+}
+
+void RecvData(SOCKET _Socket, int Num)
+{
+    char Buffer[PACKET_SIZE] = { 0, };
+    recv(_Socket, Buffer, sizeof(Buffer), 0);
+    Clients[Num].second = Buffer;
+
+    RecvChats.push_back(Clients[Num].second + " join.");
+    
+    for (int i = 0; i < Clients.size(); i++)
+    {
+        if (i == Num || Clients[i].first.bIsDeath == true)
+        {
+            continue;
+        }
+
+        std::string SendMsg = Clients[Num].second;
+        SendMsg += " join.";
+
+        send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
+    }
+
+    while (true)
+    {
+        ZeroMemory(Buffer, sizeof(Buffer));
+        int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
+
+        if (RecvReturn == -1)
+        {
+            Clients[Num].first.bIsDeath = true;
+            RecvChats.push_back(Clients[Num].second + " leave. \n");
+
+            for (int i = 0; i < Clients.size(); i++)
+            {
+                if (i == Num || Clients[i].first.bIsDeath == true)
+                {
+                    continue;
+                }
+
+                std::string SendMsg = Clients[Num].second;
+                SendMsg += " Leave.";
+
+                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
+            }
+
+            break;
+        }
+
+        if (Buffer[0] != 0)
+        {
+            RecvChats.push_back(Clients[Num].second + " : " + Buffer + "\n");
+
+            for (int i = 0; i < Clients.size(); i++)
+            {
+                if (i == Num || Clients[i].first.bIsDeath == true)
+                {
+                    continue;
+                }
+
+                std::string SendMsg = Clients[Num].second;
+                SendMsg += " : ";
+                SendMsg += Buffer;
+
+                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
+            }
+        }
+    }
+}
+
+void PrintLog()
+{
+    ImGui::Begin("Server");
+
+    char A[PACKET_SIZE] = { 0, };
+
+    ImGui::Text("Log");
+
+    for (int i = 0; i < RecvChats.size(); i++)
+    {
+        ImGui::Text(RecvChats[i].c_str());
+    }
+
+    if (RecvChats.size() > 20)
+    {
+        RecvChats.erase(RecvChats.begin());
+    }
+
+    ImGui::End();
 }

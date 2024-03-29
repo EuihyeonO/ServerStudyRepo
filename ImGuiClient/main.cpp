@@ -1,7 +1,7 @@
 ﻿// WindowsProject1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#pragma comment(lib, "ws2_32.lib")
+#include "ClientHeader.h"
 
 #include "framework.h"
 #include "resource.h"
@@ -18,18 +18,15 @@
 #include <iostream>
 #include <thread>
 
-#include <WinSock2.h>
 
-#pragma comment(lib, "d3d11.lib")
 
 #define MAX_LOADSTRING 100
 #define PACKET_SIZE 1024
 #define PORT 8080
 
-// 전역 변수:
-HINSTANCE hInst;                                // 현재 인스턴스입니다.
-WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
-WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+HINSTANCE hInst;                                
+WCHAR szTitle[MAX_LOADSTRING];                  
+WCHAR szWindowClass[MAX_LOADSTRING];            
 
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
@@ -37,32 +34,20 @@ static IDXGISwapChain* g_pSwapChain = nullptr;
 static UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 static ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
+HWND hwnd;
+ImVec4 clear_color;
+WNDCLASSEXW wc;
+SOCKET Server;
+
 bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void CreateRenderTarget();
 void CleanupRenderTarget();
 
-// 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 std::vector<std::string> Chats;
-
-void RecvData(SOCKET _Socket)
-{
-    char Buffer[PACKET_SIZE];
-
-    while (true)
-    {
-        ZeroMemory(Buffer, sizeof(Buffer));
-        int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
-
-        if (Buffer[0] != 0)
-        {
-            Chats.push_back(Buffer);
-        }
-    }
-}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -72,44 +57,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: 여기에 코드를 입력합니다.
-
-    // 전역 문자열을 초기화합니다.
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WINDOWSPROJECT1, szWindowClass, MAX_LOADSTRING);
-    
-    //IMGUI
-    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
-    ::RegisterClassExW(&wc);
-
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 300, 400, nullptr, nullptr, wc.hInstance, nullptr);
-
-    // Initialize Direct3D
-    if (!CreateDeviceD3D(hwnd))
+    if (WindowInit(hInstance) == 1)
     {
-        CleanupDeviceD3D();
-        ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
         return 1;
     }
-
-    // Show the window
-    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(hwnd);
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplWin32_Init(hwnd);
-    ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     //서버
     char IP[1024] = { 0, };
@@ -117,9 +68,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     bool isSetName = false;
     bool isSetIP = false;
-
-
-    SOCKET Server;
 
     // Main loop
     bool done = false;
@@ -186,7 +134,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                
                 while(connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
 
-                std::thread(RecvData, Server).detach();
+                std::thread(RecvData, std::ref(Server)).detach();
 
                 send(Server, Name, sizeof(Name), 0);
 
@@ -232,7 +180,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         g_pSwapChain->Present(1, 0); // Present with vsync
-        //g_pSwapChain->Present(0, 0); // Present without vsync
     }
 
     ImGui_ImplDX11_Shutdown();
@@ -332,4 +279,63 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+}
+
+int WindowInit(HINSTANCE& _hInstance)
+{
+
+    LoadStringW(_hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(_hInstance, IDC_WINDOWSPROJECT1, szWindowClass, MAX_LOADSTRING);
+
+    //IMGUI
+    wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
+    ::RegisterClassExW(&wc);
+
+    hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 300, 400, nullptr, nullptr, wc.hInstance, nullptr);
+
+    // Initialize Direct3D
+    if (!CreateDeviceD3D(hwnd))
+    {
+        CleanupDeviceD3D();
+        ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+        return 1;
+    }
+
+    // Show the window
+    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+    ::UpdateWindow(hwnd);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    return 0;
+}
+
+
+void RecvData(SOCKET& _Socket)
+{
+    char Buffer[PACKET_SIZE];
+
+    while (true)
+    {
+        ZeroMemory(Buffer, sizeof(Buffer));
+        int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
+
+        if (Buffer[0] != 0)
+        {
+            Chats.push_back(Buffer);
+        }
+    }
 }
