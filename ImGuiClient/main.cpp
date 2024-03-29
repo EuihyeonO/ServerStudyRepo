@@ -17,8 +17,7 @@
 #include <string>
 #include <iostream>
 #include <thread>
-
-
+#include <mutex>
 
 #define MAX_LOADSTRING 100
 #define PACKET_SIZE 1024
@@ -48,6 +47,20 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 std::vector<std::string> Chats;
+
+std::mutex ChatsMutex;
+
+void AddChat(const std::string& _Chat) 
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    Chats.push_back(_Chat);
+}
+
+void EraseChat(const std::vector<std::string>::iterator& _ChatIter)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    Chats.erase(_ChatIter);
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -146,6 +159,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             char ChatText[1024] = { 0, };
 
             ImGui::Text("Chat Start");
+            std::string NameText = "User Name : ";
+            NameText += Name;
+
+            ImGui::TextColored({0.0f, 1.0f, 0.0f, 1.0f}, NameText.c_str());
 
             if (ImGui::InputText(" ", ChatText, IM_ARRAYSIZE(ChatText), ImGuiInputTextFlags_EnterReturnsTrue) == true)
             {
@@ -153,14 +170,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 ChatStr += " : ";
                 ChatStr += ChatText;
 
-                Chats.push_back(ChatStr);
+                AddChat(ChatStr);
 
                 send(Server, ChatText, sizeof(ChatText), 0);
+            }
 
-                if (Chats.size() > 20)
-                {
-                    Chats.erase(Chats.begin());
-                }
+            if (Chats.size() > 20)
+            {
+                EraseChat(Chats.begin());
             }
 
             for (int i = 0; i < Chats.size(); i++)
@@ -335,7 +352,7 @@ void RecvData(SOCKET& _Socket)
 
         if (Buffer[0] != 0)
         {
-            Chats.push_back(Buffer);
+            AddChat(Buffer);
         }
     }
 }

@@ -19,6 +19,7 @@
 #include <string>
 #include <iostream>
 #include <thread>
+#include <mutex>
 
 #include <WinSock2.h>
 
@@ -48,6 +49,19 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 SOCKET Server;
 std::vector<std::string> RecvChats;
+std::mutex ChatsMutex;
+
+void AddRecvChat(const std::string& _Chat)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    RecvChats.push_back(_Chat);
+}
+
+void EraseRecvChat(const std::vector<std::string>::iterator& _ChatIter)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    RecvChats.erase(_ChatIter);
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -312,7 +326,7 @@ void RecvData(SOCKET _Socket, int Num)
     recv(_Socket, Buffer, sizeof(Buffer), 0);
     Clients[Num].second = Buffer;
 
-    RecvChats.push_back(Clients[Num].second + " join.");
+    AddRecvChat(Clients[Num].second + " join.");
     
     for (int i = 0; i < Clients.size(); i++)
     {
@@ -335,7 +349,7 @@ void RecvData(SOCKET _Socket, int Num)
         if (RecvReturn == -1)
         {
             Clients[Num].first.bIsDeath = true;
-            RecvChats.push_back(Clients[Num].second + " leave. \n");
+            AddRecvChat(Clients[Num].second + " leave. \n");
 
             for (int i = 0; i < Clients.size(); i++)
             {
@@ -355,7 +369,7 @@ void RecvData(SOCKET _Socket, int Num)
 
         if (Buffer[0] != 0)
         {
-            RecvChats.push_back(Clients[Num].second + " : " + Buffer + "\n");
+            AddRecvChat(Clients[Num].second + " : " + Buffer + "\n");
 
             for (int i = 0; i < Clients.size(); i++)
             {
@@ -389,7 +403,7 @@ void PrintLog()
 
     if (RecvChats.size() > 20)
     {
-        RecvChats.erase(RecvChats.begin());
+        EraseRecvChat(RecvChats.begin());
     }
 
     ImGui::End();
