@@ -15,6 +15,7 @@
 #include <d3d11.h>
 #include <tchar.h>
 
+#include <filesystem>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -248,6 +249,11 @@ int WindowInit(HINSTANCE& _hInstance)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    std::filesystem::path MyPath = std::filesystem::current_path();
+    MyPath += "\\malgun.ttf";
+
+    io.Fonts->AddFontFromFileTTF(MyPath.string().c_str(), 17.0f, NULL, io.Fonts->GetGlyphRangesKorean());
 
     ImGui::StyleColorsDark();
 
