@@ -138,6 +138,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ::DestroyWindow(hwnd);
     ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
+    WSACleanup();
+
     return 0;
 }
 
@@ -359,7 +361,7 @@ void RecvData(SOCKET _Socket, int Num)
 
         int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
 
-        if (RecvReturn == -1)
+        if (RecvReturn == 0)
         {
             Clients[Num].first.bIsDeath = true;
             AddRecvChat(Clients[Num].second + " leave. \n");

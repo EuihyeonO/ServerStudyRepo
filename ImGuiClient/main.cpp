@@ -208,6 +208,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     CleanupDeviceD3D();
     ::DestroyWindow(hwnd);
     ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+   
+    shutdown(Server, SD_BOTH);
+    closesocket(Server);
+
+    WSACleanup();
 
     return 0;
 }
