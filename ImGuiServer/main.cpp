@@ -359,7 +359,7 @@ void RecvData(SOCKET _Socket, int Num)
 
         int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
 
-        if (RecvReturn == 0)
+        if (RecvReturn == -1)
         {
             Clients[Num].first.bIsDeath = true;
             AddRecvChat(Clients[Num].second + " leave. \n");
