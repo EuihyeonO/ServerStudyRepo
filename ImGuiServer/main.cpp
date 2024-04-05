@@ -50,20 +50,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 SOCKET Server;
+
 std::vector<std::string> RecvChats;
 std::mutex ChatsMutex;
-
-void AddRecvChat(const std::string& _Chat)
-{
-    std::lock_guard<std::mutex> lock(ChatsMutex);
-    RecvChats.push_back(_Chat);
-}
-
-void EraseRecvChat(const std::vector<std::string>::iterator& _ChatIter)
-{
-    std::lock_guard<std::mutex> lock(ChatsMutex);
-    RecvChats.erase(_ChatIter);
-}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -267,6 +256,7 @@ int WindowInit(HINSTANCE& _hInstance)
     bool show_another_window = false;
     clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+
     return 0;
 }
 
@@ -275,13 +265,12 @@ int ServerInit()
     //서버
     WSADATA Wsa;
 
-    //윈속 라이브러리 초기화, 데이터를 두 번째 인자에 대입.
     int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
 
     if (WsaStartResult != 0)
     {
         std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
-        return 1; // 프로그램 종료 또는 오류 처리
+        return 1;
     }
 
     Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -302,7 +291,8 @@ int ServerInit()
 
     int ListenResult = listen(Server, SOMAXCONN);
 
-    if (ListenResult != 0) {
+    if (ListenResult != 0) 
+    {
         std::cerr << "Listen failed. Error code : " << ListenResult << std::endl;
         return 1;
     }
@@ -319,6 +309,7 @@ void AcceptClient(SOCKET& _Socket)
     while (true)
     {
         Clients.push_back(std::pair<Client, std::string>{Client(), ""});
+
         Clients[Order].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[Order].first.Addr), &Clients[Order].first.ClientSize);
         Clients[Order].first.Number = Order;
         Clients[Order].first.bIsDeath = false;
@@ -371,6 +362,9 @@ void RecvData(SOCKET _Socket, int Num)
 
             SendMsgToAllCLient(Num, LeaveMsg);
 
+            shutdown(Clients[Num].first.ClientSock, SD_BOTH);
+            closesocket(Clients[Num].first.ClientSock);
+
             break;
         }
 
@@ -401,4 +395,16 @@ void PrintLog()
     }
 
     ImGui::End();
+}
+
+void AddRecvChat(const std::string& _Chat)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    RecvChats.push_back(_Chat);
+}
+
+void EraseRecvChat(const std::vector<std::string>::iterator& _ChatIter)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    RecvChats.erase(_ChatIter);
 }

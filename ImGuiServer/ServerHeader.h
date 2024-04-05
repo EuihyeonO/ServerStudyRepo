@@ -18,17 +18,15 @@
 class Client
 {
 public:
-	SOCKET ClientSock;
+	SOCKET ClientSock = { 0, };
 	SOCKADDR_IN Addr = { 0, };
+
 	int ClientSize = sizeof(Addr);
 	int Number = -1;
 
 	bool bIsDeath = false;
 
-	Client()
-	{
-
-	}
+	Client(){}
 };
 
 bool CreateDeviceD3D(HWND hWnd);
@@ -43,5 +41,8 @@ int ServerInit();
 
 void RecvData(SOCKET _Socket, int Num);
 void AcceptClient(SOCKET& _Socket);
+
+void AddRecvChat(const std::string& _Chat);
+void EraseRecvChat(const std::vector<std::string>::iterator& _ChatIter);
 
 std::vector<std::pair<Client, std::string>> Clients;
