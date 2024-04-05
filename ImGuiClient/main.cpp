@@ -120,6 +120,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if(isSetName == false)
         {
             ImGui::Text("Please Input Name");
+            
             if (ImGui::InputText(" ", Name, IM_ARRAYSIZE(Name), ImGuiInputTextFlags_EnterReturnsTrue) == true)
             {
                 isSetName = true;
@@ -140,7 +141,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                     return 1; 
                 }
                
-                Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+                Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);         
                 SOCKADDR_IN Addr = { 0, };
                 Addr.sin_addr.s_addr = inet_addr(IP);
                 Addr.sin_port = PORT;

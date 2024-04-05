@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -293,36 +294,49 @@ int ServerInit()
 
     if (BindResult != 0)
     {
-        std::cerr << "bind failed with error code: " << BindResult << std::endl;
-        return 1; // 프로그램 종료 또는 오류 처리
+        std::cerr << "Bind failed. error code : " << BindResult << std::endl;
+        return 1;
     }
 
     int ListenResult = listen(Server, SOMAXCONN);
 
     if (ListenResult != 0) {
-        std::cerr << "listen failed with error code: " << ListenResult << std::endl;
-        return 1; // 프로그램 종료 또는 오류 처리
+        std::cerr << "Listen failed. Error code : " << ListenResult << std::endl;
+        return 1;
     }
 
-    std::thread(Accept, std::ref(Server)).detach();
+    std::thread(AcceptClient, std::ref(Server)).detach();
 
     return 0;
 }
 
-void Accept(SOCKET& _Socket)
+void AcceptClient(SOCKET& _Socket)
 {
-    int Cnt = 0;
+    int Order = 0;
 
     while (true)
     {
         Clients.push_back(std::pair<Client, std::string>{Client(), ""});
-        Clients[Cnt].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[Cnt].first.Addr), &Clients[Cnt].first.ClientSize);
-        Clients[Cnt].first.Number = Cnt;
-        Clients[Cnt].first.bIsDeath = false;
+        Clients[Order].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[Order].first.Addr), &Clients[Order].first.ClientSize);
+        Clients[Order].first.Number = Order;
+        Clients[Order].first.bIsDeath = false;
 
-        std::thread(RecvData, Clients[Cnt].first.ClientSock, Cnt).detach();
+        std::thread(RecvData, Clients[Order].first.ClientSock, Order).detach();
 
-        Cnt++;
+        Order++;
+    }
+}
+
+void SendMsgToAllCLient(int _IgnoreIndex, std::string_view _Msg)
+{
+    for (int i = 0; i < Clients.size(); i++)
+    {
+        if (i == _IgnoreIndex || Clients[i].first.bIsDeath == true)
+        {
+            continue;
+        }
+
+        send(Clients[i].first.ClientSock, _Msg.data(), sizeof(char) * PACKET_SIZE, 0);
     }
 }
 
@@ -334,63 +348,37 @@ void RecvData(SOCKET _Socket, int Num)
 
     AddRecvChat(Clients[Num].second + " join.");
     
-    for (int i = 0; i < Clients.size(); i++)
-    {
-        if (i == Num || Clients[i].first.bIsDeath == true)
-        {
-            continue;
-        }
+    std::string JoinMsg = Clients[Num].second;
+    JoinMsg += " join.";
 
-        std::string SendMsg = Clients[Num].second;
-        SendMsg += " join.";
-
-        send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
-    }
+    SendMsgToAllCLient(Num, JoinMsg);
 
     while (true)
     {
         ZeroMemory(Buffer, sizeof(Buffer));
+
         int RecvReturn = recv(_Socket, Buffer, sizeof(Buffer), 0);
 
-        if (RecvReturn == -1)
+        if (RecvReturn == 0)
         {
             Clients[Num].first.bIsDeath = true;
             AddRecvChat(Clients[Num].second + " leave. \n");
 
-            for (int i = 0; i < Clients.size(); i++)
-            {
-                if (i == Num || Clients[i].first.bIsDeath == true)
-                {
-                    continue;
-                }
+            std::string LeaveMsg = Clients[Num].second;
+            LeaveMsg += " Leave.";
 
-                std::string SendMsg = Clients[Num].second;
-                SendMsg += " Leave.";
-
-                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
-            }
+            SendMsgToAllCLient(Num, LeaveMsg);
 
             break;
         }
 
-        if (Buffer[0] != 0)
-        {
-            AddRecvChat(Clients[Num].second + " : " + Buffer + "\n");
+        AddRecvChat(Clients[Num].second + " : " + Buffer + "\n");
 
-            for (int i = 0; i < Clients.size(); i++)
-            {
-                if (i == Num || Clients[i].first.bIsDeath == true)
-                {
-                    continue;
-                }
+        std::string SendMsg = Clients[Num].second;
+        SendMsg += " : ";
+        SendMsg += Buffer;
 
-                std::string SendMsg = Clients[Num].second;
-                SendMsg += " : ";
-                SendMsg += Buffer;
-
-                send(Clients[i].first.ClientSock, SendMsg.c_str(), sizeof(Buffer), 0);
-            }
-        }
+        SendMsgToAllCLient(Num, SendMsg);
     }
 }
 
@@ -398,18 +386,16 @@ void PrintLog()
 {
     ImGui::Begin("Server");
 
-    char A[PACKET_SIZE] = { 0, };
-
     ImGui::Text("Log");
-
-    for (int i = 0; i < RecvChats.size(); i++)
-    {
-        ImGui::Text(RecvChats[i].c_str());
-    }
 
     if (RecvChats.size() > 20)
     {
         EraseRecvChat(RecvChats.begin());
+    }
+
+    for (int i = 0; i < RecvChats.size(); i++)
+    {
+        ImGui::Text(RecvChats[i].c_str());
     }
 
     ImGui::End();

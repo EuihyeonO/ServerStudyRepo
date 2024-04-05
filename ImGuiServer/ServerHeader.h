@@ -42,8 +42,6 @@ int WindowInit(HINSTANCE& _hInstance);
 int ServerInit();
 
 void RecvData(SOCKET _Socket, int Num);
-void Accept(SOCKET& _Socket);
-
-void SendMsgAllClient(int _ExceptNum, const std::string& _Msg);
+void AcceptClient(SOCKET& _Socket);
 
 std::vector<std::pair<Client, std::string>> Clients;
