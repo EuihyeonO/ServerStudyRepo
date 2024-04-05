@@ -29,7 +29,7 @@
 
 #define MAX_LOADSTRING 100
 #define PACKET_SIZE 1024
-#define PORT 8080
+#define PORT 9090
 
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;

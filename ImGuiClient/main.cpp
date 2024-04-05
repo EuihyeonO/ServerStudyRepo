@@ -22,7 +22,7 @@
 
 #define MAX_LOADSTRING 100
 #define PACKET_SIZE 1024
-#define PORT 8080
+#define PORT 9090
 
 HINSTANCE hInst;                                
 WCHAR szTitle[MAX_LOADSTRING];                  
