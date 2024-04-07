@@ -14,8 +14,6 @@
 #include <tchar.h>
 
 #include <filesystem>
-#include <vector>
-#include <string>
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -47,21 +45,11 @@ void CleanupRenderTarget();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+char IP[PACKET_SIZE] = { 0, };
+char Name[PACKET_SIZE] = { 0, };
+
 std::vector<std::string> Chats;
-
 std::mutex ChatsMutex;
-
-void AddChat(const std::string& _Chat) 
-{
-    std::lock_guard<std::mutex> lock(ChatsMutex);
-    Chats.push_back(_Chat);
-}
-
-void EraseChat(const std::vector<std::string>::iterator& _ChatIter)
-{
-    std::lock_guard<std::mutex> lock(ChatsMutex);
-    Chats.erase(_ChatIter);
-}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -75,10 +63,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return 1;
     }
-
-    //서버
-    char IP[1024] = { 0, };
-    char Name[1024] = { 0, };
 
     bool isSetName = false;
     bool isSetIP = false;
@@ -132,27 +116,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
             if (ImGui::InputText(" ", IP, IM_ARRAYSIZE(IP), ImGuiInputTextFlags_EnterReturnsTrue) == true)
             {
-                WSADATA Wsa;
-               
-                int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
-                if (WsaStartResult != 0) 
-                {
-                    std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
-                    return 1; 
-                }
-               
-                Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);         
-                SOCKADDR_IN Addr = { 0, };
-                Addr.sin_addr.s_addr = inet_addr(IP);
-                Addr.sin_port = PORT;
-                Addr.sin_family = AF_INET;
-               
-                while(connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
-
-                std::thread(RecvData, std::ref(Server)).detach();
+                WSAInit();
+                ConnectToServer();
 
                 send(Server, Name, sizeof(Name), 0);
-
                 isSetIP = true;
             }
         }
@@ -367,4 +334,43 @@ void RecvData(SOCKET& _Socket)
             AddChat(Buffer);
         }
     }
+}
+
+void AddChat(const std::string& _Chat)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    Chats.push_back(_Chat);
+}
+
+void EraseChat(const std::vector<std::string>::iterator& _ChatIter)
+{
+    std::lock_guard<std::mutex> lock(ChatsMutex);
+    Chats.erase(_ChatIter);
+}
+
+int WSAInit()
+{
+    WSADATA Wsa;
+
+    int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
+    if (WsaStartResult != 0)
+    {
+        std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+void ConnectToServer()
+{
+    Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    SOCKADDR_IN Addr = { 0, };
+    Addr.sin_addr.s_addr = inet_addr(IP);
+    Addr.sin_port = PORT;
+    Addr.sin_family = AF_INET;
+
+    while (connect(Server, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
+
+    std::thread(RecvData, std::ref(Server)).detach();
 }
