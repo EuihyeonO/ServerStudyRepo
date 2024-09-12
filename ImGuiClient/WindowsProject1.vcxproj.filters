@@ -1,99 +1,141 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
+    <Filter Include="App">
+      <UniqueIdentifier>{a9a697c6-1319-4a76-a433-c2ffc033845b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Client">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="헤더 파일">
+    <Filter Include="Header">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="IMGUI">
+    <Filter Include="Library">
       <UniqueIdentifier>{60cc62a8-7245-4b9e-a1bd-3984bc2dbac0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{a1484e70-c957-494a-980a-991e068aefba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\GuiManager">
+      <UniqueIdentifier>{0f145eff-7db8-459e-9981-4e77dd71aafc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\DirectXManager">
+      <UniqueIdentifier>{05491208-603f-4488-8677-cec250476c02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\DataManager">
+      <UniqueIdentifier>{4865b371-c55c-4a2b-9555-f05f3d2fef44}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="WindowsProject1.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imgui_impl_dx11.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imgui_impl_win32.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imgui_internal.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imstb_rectpack.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imstb_textedit.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imstb_truetype.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imgui_stdlib.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imconfig.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\debug\imgui\imgui.h">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="ClientHeader.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Define.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIManager.h">
+      <Filter>Manager\GuiManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXManager.h">
+      <Filter>Manager\DirectXManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager.h">
+      <Filter>Manager\DataManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_impl_dx11.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_impl_win32.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_tables.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_widgets.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_stdlib.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_demo.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\debug\imgui\imgui_draw.cpp">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIManager.cpp">
+      <Filter>Manager\GuiManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXManager.cpp">
+      <Filter>Manager\DirectXManager</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager.cpp">
+      <Filter>Manager\DataManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Library\debug\imgui\imgui.natvis">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </Natvis>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Library\debug\imgui\imgui.natstepfilter">
-      <Filter>IMGUI</Filter>
+      <Filter>Library</Filter>
     </None>
   </ItemGroup>
 </Project>

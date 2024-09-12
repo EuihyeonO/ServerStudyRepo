@@ -161,8 +161,19 @@
     <ClInclude Include="..\Library\debug\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\Library\debug\imgui\imstb_textedit.h" />
     <ClInclude Include="..\Library\debug\imgui\imstb_truetype.h" />
+    <ClInclude Include="Client.h" />
     <ClInclude Include="ClientHeader.h" />
+    <ClInclude Include="DataManager.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="Define.h" />
+    <ClInclude Include="DirectXManager.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GUIManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WindowsProject1.h" />
@@ -176,6 +187,16 @@
     <ClCompile Include="..\Library\debug\imgui\imgui_stdlib.cpp" />
     <ClCompile Include="..\Library\debug\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Library\debug\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="DataManager.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="DirectXManager.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="GUIManager.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
