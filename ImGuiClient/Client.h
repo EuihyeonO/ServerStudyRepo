@@ -51,13 +51,13 @@ public:
 private:
 	Client() 
 	{
-		ServerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		ConnectedSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	}
 
 	~Client() {}
 
 private:
-	SOCKET ServerSocket;
+	SOCKET ConnectedSocket;
 
 	std::string Name = "";
 	std::string ServerIP = "";

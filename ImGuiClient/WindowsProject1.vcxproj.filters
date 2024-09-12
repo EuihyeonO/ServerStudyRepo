@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="App">
-      <UniqueIdentifier>{a9a697c6-1319-4a76-a433-c2ffc033845b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Client">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -27,6 +24,12 @@
     <Filter Include="Manager\DataManager">
       <UniqueIdentifier>{4865b371-c55c-4a2b-9555-f05f3d2fef44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library\IMGUI">
+      <UniqueIdentifier>{f0b2b6db-f117-47a7-a8e7-86fbe195b07c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{a9a697c6-1319-4a76-a433-c2ffc033845b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -40,33 +43,6 @@
     </ClInclude>
     <ClInclude Include="WindowsProject1.h">
       <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imgui_impl_dx11.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imgui_impl_win32.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imgui_internal.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imstb_rectpack.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imstb_textedit.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imstb_truetype.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imgui_stdlib.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imconfig.h">
-      <Filter>Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\debug\imgui\imgui.h">
-      <Filter>Library</Filter>
     </ClInclude>
     <ClInclude Include="ClientHeader.h">
       <Filter>Header</Filter>
@@ -86,34 +62,37 @@
     <ClInclude Include="DataManager.h">
       <Filter>Manager\DataManager</Filter>
     </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imconfig.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imgui.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imgui_impl_dx11.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imgui_impl_win32.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imgui_internal.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imgui_stdlib.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imstb_rectpack.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imstb_textedit.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\debug\imgui\imstb_truetype.h">
+      <Filter>Library\IMGUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Library\debug\imgui\imgui_impl_dx11.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui_impl_win32.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui_tables.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui_widgets.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui_stdlib.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui_demo.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\debug\imgui\imgui_draw.cpp">
-      <Filter>Library</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>App</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="GUIManager.cpp">
       <Filter>Manager\GuiManager</Filter>
@@ -127,15 +106,39 @@
     <ClCompile Include="DataManager.cpp">
       <Filter>Manager\DataManager</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="..\Library\debug\imgui\imgui.natvis">
-      <Filter>Library</Filter>
-    </Natvis>
+    <ClCompile Include="..\Library\debug\imgui\imgui.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_demo.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_draw.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_impl_dx11.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_impl_win32.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_stdlib.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_tables.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\debug\imgui\imgui_widgets.cpp">
+      <Filter>Library\IMGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Library\debug\imgui\imgui.natstepfilter">
-      <Filter>Library</Filter>
+      <Filter>Library\IMGUI</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\Library\debug\imgui\imgui.natvis">
+      <Filter>Library\IMGUI</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

@@ -22,32 +22,21 @@ void Client::ConnectToServer()
 	Addr.sin_port = PORT;
 	Addr.sin_family = AF_INET;
 
-	while (connect(ServerSocket, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
-	std::thread(&DataManager::RecvData, DataManager::GetInstance(), std::ref(ServerSocket)).detach();
+	while (connect(ConnectedSocket, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
+	std::thread(&DataManager::RecvData, DataManager::GetInstance(), std::ref(ConnectedSocket)).detach();
 
-	send(ServerSocket, Name.c_str(), (int)Name.size(), 0);
+	send(ConnectedSocket, Name.c_str(), (int)Name.size(), 0);
 }
 
 void Client::End()
 {
-	shutdown(ServerSocket, SD_BOTH);
-	closesocket(ServerSocket);
+	shutdown(ConnectedSocket, SD_BOTH);
+	closesocket(ConnectedSocket);
 
-	WSACleanUp();
-}
-
-void Client::WSACleanUp()
-{
-	WSADATA Wsa;
-
-	int WsaStartResult = WSAStartup(MAKEWORD(2, 2), &Wsa);
-	if (WsaStartResult != 0)
-	{
-		std::cerr << "WSAStartup failed with error code: " << WsaStartResult << std::endl;
-	}
+	WSACleanup();
 }
 
 void Client::SendMassage(const std::string& _Chat)
 {
-	send(ServerSocket, _Chat.c_str(), (int)_Chat.size() + 1, 0);
+	send(ConnectedSocket, _Chat.c_str(), (int)_Chat.size() + 1, 0);
 }

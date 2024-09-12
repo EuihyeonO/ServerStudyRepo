@@ -1,13 +1,8 @@
-#include <filesystem>
-
 #include "GUIManager.h"
-#include "Client.h"
 #include "DirectXManager.h"
 #include "DataManager.h"
 
-ImVec4 clear_color;
-
-// Forward declare message handler from imgui_impl_win32.cpp
+#include <filesystem>
 
 void GUIManager::Start()
 {
@@ -34,9 +29,6 @@ void GUIManager::Start()
 
 void GUIManager::Loop()
 {
-    Client* ClientInst = Client::GetInstance();
-
-    // Main loop
     bool done = false;
 
     while (!done)
@@ -53,8 +45,7 @@ void GUIManager::Loop()
         }
         if (done)
             break;
-
-        // Handle window resize (we don't resize directly in the WM_SIZE handler)
+        
         DirectXManager::GetInstance()->ResizeWindow();
 
         // Start the Dear ImGui frame
@@ -63,52 +54,14 @@ void GUIManager::Loop()
 
         ImGui::NewFrame();
 
-        ImGui::Begin("Client");
+        ImGui::Begin("Server");
+        ImGui::Text("Log");
 
-        if (ClientInst->GetName() == "")
+        const std::vector<std::string>& RecvChats = DataManager::GetInstance()->GetRecvChats();
+        
+        for (int i = 0; i < RecvChats.size(); i++)
         {
-            ImGui::Text("Please Input Name");
-
-            char Name[PACKET_SIZE] = { 0, };
-
-            if (ImGui::InputText(" ", Name, IM_ARRAYSIZE(Name), ImGuiInputTextFlags_EnterReturnsTrue) == true)
-            {
-                ClientInst->SetName(Name);
-            }
-        }
-        else if (ClientInst->GetIP() == "")
-        {
-            ImGui::Text("Please Input Server IP");
-
-            char IP[PACKET_SIZE] = { 0, };
-
-            if (ImGui::InputText(" ", IP, IM_ARRAYSIZE(IP), ImGuiInputTextFlags_EnterReturnsTrue) == true)
-            {
-                ClientInst->SetServerIP(IP);
-                ClientInst->ConnectToServer();
-            }
-        }
-        else
-        {
-            char ChatText[1024] = { 0, };
-
-            ImGui::Text("Chat Start");
-            std::string NameText = "User Name : ";
-            NameText += Client::GetInstance()->GetName();
-
-            ImGui::TextColored({ 0.0f, 1.0f, 0.0f, 1.0f }, NameText.c_str());
-
-            if (ImGui::InputText(" ", ChatText, IM_ARRAYSIZE(ChatText), ImGuiInputTextFlags_EnterReturnsTrue) == true)
-            {
-                DataManager::GetInstance()->AddChat(ChatText, true);
-            }
-
-            const std::vector<std::string>& Chats = DataManager::GetInstance()->GetChats();
-
-            for (int i = 0; i < Chats.size(); i++)
-            {
-                ImGui::Text(Chats[i].c_str());
-            }
+            ImGui::Text(RecvChats[i].c_str());
         }
 
         ImGui::End();
@@ -116,11 +69,13 @@ void GUIManager::Loop()
         // Rendering
         ImGui::Render();
         const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        
         DirectXManager::GetInstance()->GetDeviceContext()->OMSetRenderTargets(1, DirectXManager::GetInstance()->GetRTVDoublePtr(), nullptr);
         DirectXManager::GetInstance()->GetDeviceContext()->ClearRenderTargetView(DirectXManager::GetInstance()->GetRTV(), clear_color_with_alpha);
+        
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        DirectXManager::GetInstance()->GetSwapChain()->Present(1, 0); // Present with vsync
+        DirectXManager::GetInstance()->GetSwapChain()->Present(1, 0);
     }
 }
 
