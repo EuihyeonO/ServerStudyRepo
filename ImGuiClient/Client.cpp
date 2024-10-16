@@ -40,9 +40,9 @@ void Client::End()
 void Client::SendMassage(const std::string& _Chat)
 {
 	int Result = send(ConnectedSocket, _Chat.c_str(), (int)_Chat.size() + 1, 0);
-	
+
 	if (Result < 0)
 	{
-		DataManager::GetInstance()->AddChat("Send Failed. \nError Code : " + WSAGetLastError(), false);
+		DataManager::GetInstance()->AddChat("Error Code : " + WSAGetLastError(), false);
 	}
 }
