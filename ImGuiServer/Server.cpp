@@ -63,8 +63,8 @@ void Server::AcceptClient(SOCKET& _Socket)
             Clients.push_back(std::pair<Client, std::string>{Client(), ""});
         }
 
-        Clients[ID].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[ID].first.Addr), &Clients[ID].first.ClientSize);
         Clients[ID].first.ID = ID;
+        Clients[ID].first.ClientSock = accept(_Socket, reinterpret_cast<SOCKADDR*>(&Clients[ID].first.Addr), &Clients[ID].first.ClientSize);
 
         std::thread(&Server::RecvChat, Server::GetInstance(), Clients[ID].first.ClientSock, ID).detach();
     }
@@ -119,11 +119,6 @@ void Server::SendMsgToAllCLient(std::string_view _Msg, const std::set<int>& _Ign
 {
     for (int i = 0; i < Clients.size(); i++)
     {
-        if (DeathID.size() != 0 && DeathID.find(i) != DeathID.end())
-        {
-            continue;
-        }
-
         if (_IgnoreIndex.size() != 0 && _IgnoreIndex.find(i) != _IgnoreIndex.end())
         {
             continue;

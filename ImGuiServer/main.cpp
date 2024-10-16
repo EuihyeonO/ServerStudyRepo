@@ -27,9 +27,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
-    _In_ LPWSTR    lpCmdLine,
-    _In_ int       nCmdShow)
+                      _In_opt_ HINSTANCE hPrevInstance,
+                      _In_ LPWSTR    lpCmdLine,
+                      _In_ int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -45,10 +45,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Main loop
     GUIManager::GetInstance()->Loop();
 
-
     GUIManager::GetInstance()->End();
     DirectXManager::GetInstance()->End();
     Server::GetInstance()->End();
+
     return 0;
 }
 

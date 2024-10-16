@@ -23,6 +23,7 @@ void Client::ConnectToServer()
 	Addr.sin_family = AF_INET;
 
 	while (connect(ConnectedSocket, reinterpret_cast<SOCKADDR*>(&Addr), sizeof(Addr)));
+
 	std::thread(&DataManager::RecvData, DataManager::GetInstance(), std::ref(ConnectedSocket)).detach();
 
 	send(ConnectedSocket, Name.c_str(), (int)Name.size(), 0);
@@ -38,5 +39,10 @@ void Client::End()
 
 void Client::SendMassage(const std::string& _Chat)
 {
-	send(ConnectedSocket, _Chat.c_str(), (int)_Chat.size() + 1, 0);
+	int Result = send(ConnectedSocket, _Chat.c_str(), (int)_Chat.size() + 1, 0);
+	
+	if (Result != 0)
+	{
+		DataManager::GetInstance()->AddChat("Send Failed. \nError Code : " + Result, false);
+	}
 }
