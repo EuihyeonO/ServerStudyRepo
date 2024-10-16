@@ -3,8 +3,6 @@
 
 void DataManager::AddChat(const std::string& _Chat, bool _isSend)
 {
-    std::lock_guard<std::mutex> lock(ChatsMutex);
-
     std::string ChatStr = "";
 
     if (_isSend == true)
@@ -17,17 +15,23 @@ void DataManager::AddChat(const std::string& _Chat, bool _isSend)
 
     ChatStr += _Chat;
 
+    ChatsMutex.lock();
     Chats.push_back(ChatStr);
+    ChatsMutex.unlock();
+
     EraseOldestChat();
 }
 
 void DataManager::EraseOldestChat()
 {
+    ChatsMutex.lock();
+
     if (Chats.size() > 20)
     {
-        std::lock_guard<std::mutex> lock(ChatsMutex);
         Chats.erase(Chats.begin());
     }
+
+    ChatsMutex.unlock();
 }
 
 void DataManager::RecvData(SOCKET& _Socket)

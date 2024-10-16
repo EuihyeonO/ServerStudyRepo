@@ -2,17 +2,21 @@
 
 void DataManager::AddRecvChat(const std::string& _Chat)
 {
-    std::lock_guard<std::mutex> lock(ChatsMutex);
+    ChatsMutex.lock();
     RecvChats.push_back(_Chat);
+    ChatsMutex.unlock();
 
     EraseTopRecvChat();
 }
 
 void DataManager::EraseTopRecvChat()
 {
+    ChatsMutex.lock();
+
     if (RecvChats.size() > 20)
     {
-        std::lock_guard<std::mutex> lock(ChatsMutex);
         RecvChats.erase(RecvChats.begin());
     }
+
+    ChatsMutex.unlock();
 }
